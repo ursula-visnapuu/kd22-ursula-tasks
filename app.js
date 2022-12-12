@@ -1,6 +1,7 @@
 const form = document.querySelector('form')
 form.addEventListener('submit', addTask)
 
+
 function addTask(event) {
     const taskText = document.querySelector('#task').value
     console.log(taskText)
@@ -14,9 +15,7 @@ function addTask(event) {
     let aText = document.createTextNode('X')
     a.appendChild(aText)
     a.setAttribute('href', '#')
-
     li.appendChild(a)
-    const ul = document.querySelector('ul')
     ul.appendChild(li)
 
     document.querySelector('#task').value = ''
