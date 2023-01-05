@@ -1,89 +1,86 @@
-const form = document.querySelector('form')
-form.addEventListener('submit', addTask)
+const form = document.querySelector('#book-form')
+form.addEventListener('submit', addBook)
 
-const ul = document.querySelector('ul')
-ul.addEventListener('click', deleteTask)
+document.addEventListener('DOMContentLoaded', getBooks)
 
-const deleteTasks = document.querySelector('#clear-all-tasks')
-deleteTasks.addEventListener('click', deleteAllTasks)
+const booksTable = document.querySelector('#books')
+booksTable.addEventListener('click', deleteBook)
 
-document.addEventListener('DOMContentLoaded', getTasks)
-
-function getTasks(event){
-    // add task to localStorage
-    let tasks // array for user inputs
-    if(localStorage.getItem('tasks') === null){
-        tasks = []
-    } else {
-        tasks = JSON.parse(localStorage.getItem('tasks'))
-    }
-    // loop array for each element value
-    tasks.forEach(function (task){
-        let li = document.createElement('li')
-        li.className = 'collection-item'
-        let liText = document.createTextNode(task)
-        li.appendChild(liText)
-
-        let a = document.createElement('a')
-        a.className = 'teal-text lighten-2 secondary-content'
-        let aText = document.createTextNode('X')
-        a.appendChild(aText)
-        a.setAttribute('href', '#')
-
-        li.appendChild(a)
-
-        ul.appendChild(li)
-    })
-}
-
-function deleteAllTasks(event){
-    // while(ul.firstElementChild){
-    //     ul.removeChild(ul.firstElementChild)
-    // }
-    ul.innerHTML = ''
-    event.preventDefault()
-}
-
-function deleteTask(event){
+function deleteBook(event){
     if(event.target.textContent === 'X'){
-        if(confirm('Are you sure to delete this task?')){
-            event.target.parentElement.remove()
+        if(confirm('Are you sure to delete this book?')){
+            event.target.parentElement.parentElement.remove()
+            const isbn = event.target.parentElement.previousElementSibling
+            const author = event.target.parentElement.previousElementSibling.previousElementSibling
+            const title = event.target.parentElement.previousElementSibling.previousElementSibling.previousElementSibling
+
+            const book = [title.textContent, author.textContent, isbn.textContent]
+
+            let books // array for LS data
+            if(localStorage.getItem('books') === null){
+                books = []
+            } else {
+                books = JSON.parse(localStorage.getItem('books'))
+            }
+            books.forEach(function(bookFromLS, index){
+                if( bookFromLS[0] === book[0] && bookFromLS[1] === book[1] && bookFromLS[2] === book[2]){
+                    books.splice(index, 1)
+                }
+            })
+            localStorage.setItem('books', JSON.stringify(books))
         }
     }
 }
 
-
-function addTask(event) {
-    // user input
-    const taskText = document.querySelector('#task').value
-
-    // add DOM element - begin
-    let li = document.createElement('li')
-    li.className = 'collection-item'
-    let liText = document.createTextNode(taskText)
-    li.appendChild(liText)
-
-    let a = document.createElement('a')
-    a.className = 'teal-text lighten-2 secondary-content'
-    let aText = document.createTextNode('X')
-    a.appendChild(aText)
-    a.setAttribute('href', '#')
-
-    li.appendChild(a)
-
-    ul.appendChild(li)
-    // add DOM element - end
-
-    // add task to localStorage
-    let tasks // array for user inputs
-    if(localStorage.getItem('tasks') === null){
-        tasks = []
+function getBooks(){
+    let books // array for LS data
+    if(localStorage.getItem('books') === null){
+        books = []
     } else {
-        tasks = JSON.parse(localStorage.getItem('tasks'))
+        books = JSON.parse(localStorage.getItem('books'))
     }
-    tasks.push(taskText)
-    localStorage.setItem('tasks', JSON.stringify(tasks))
+    books.forEach(function(book){
+        const bookRow = document.createElement('tr')
+        bookRow.innerHTML = `
+                        <td>${book[0]}</td>
+                        <td>${book[1]}</td>   
+                        <td>${book[2]}</td>   
+                        <td><a href="#">X</a></td>`
+        const booksTable = document.querySelector('#books')
+        booksTable.appendChild(bookRow)
+    })
+}
 
-    document.querySelector('#task').value = ''
+function addBook(event){
+    // read user inputs
+    const title = document.querySelector('#title').value
+    const author = document.querySelector('#author').value
+    const isbn = document.querySelector('#isbn').value
+
+    // create table row with user inputs data
+    const bookRow = document.createElement('tr')
+    bookRow.innerHTML = `
+                        <td>${title}</td>
+                        <td>${author}</td>   
+                        <td>${isbn}</td>   
+                        <td><a href="#">X</a></td>`
+    const booksTable = document.querySelector('#books')
+    booksTable.appendChild(bookRow)
+
+    // add book to LS
+    const book = [title, author, isbn]
+    let books // array for user inputs
+    if(localStorage.getItem('books') === null){
+        books = []
+    } else {
+        books = JSON.parse(localStorage.getItem('books'))
+    }
+    books.push(book)
+    localStorage.setItem('books', JSON.stringify(books))
+
+    // clear inputs
+    document.querySelector('#title').value = ''
+    document.querySelector('#author').value = ''
+    document.querySelector('#isbn').value = ''
     event.preventDefault()
 }
